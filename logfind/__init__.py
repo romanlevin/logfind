@@ -10,12 +10,13 @@ LOGFIND_RC = os.path.expanduser('~/.logfind')
 def get_important_files(logfind_rc=LOGFIND_RC):
     try:
         with open(logfind_rc) as f:
-            important_files = [os.path.expanduser(path.strip()) for path in f if path]
+            for path in f:
+                if path:
+                    yield os.path.expanduser(path.strip())
     except IOError as e:
         if e.errno == errno.ENOENT:
             sys.exit('configuration missing at %r' % logfind_rc)
         raise
-    return important_files
 
 
 def scan_file(file_object, search_terms, and_lookup=True):
