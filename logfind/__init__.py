@@ -29,7 +29,7 @@ def scan_file(file_object, patterns, and_lookup=True):
 
 def scan_file_path(file_path, patterns, and_lookup=True):
     try:
-        with open(file_path) as f:
+        with open(file_path, 'r+b') as f:
             return scan_file(f, patterns, and_lookup=and_lookup)
     except IOError as e:
         # Silently skip if the file does not exist
@@ -42,8 +42,9 @@ def compile_patterns(patterns):
 
 
 def get_args():
+    str_to_byte = lambda s: s.encode('utf-8')
     parser = argparse.ArgumentParser(description='Scan files for search terms')
-    parser.add_argument('patterns', metavar='pattern', type=bytes, nargs='+', help='search for these regexp patterns in each file. Assumes AND between each pattern')
+    parser.add_argument('patterns', metavar='pattern', type=str_to_byte, nargs='+', help='search for these regexp patterns in each file. Assumes AND between each pattern')
     parser.add_argument('-o', '--or-lookup', help='assume OR between each pattern', action='store_true')
     args = parser.parse_args()
     return args
