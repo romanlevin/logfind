@@ -11,6 +11,12 @@ def mock_file(contents):
         yield f
 
 
+def scan_mock_file(contents, terms, and_lookup=True):
+    patterns = logfind.compile_patterns(terms)
+    with mock_file(contents) as f:
+        return logfind.scan_file(f, patterns, and_lookup)
+
+
 def test_scan_file_positive_and():
     mock_file_contents = b"""
 term1
@@ -18,10 +24,7 @@ term3
 term2
 """
     terms = (b'term1', b'term2')
-    patterns = logfind.compile_patterns(terms)
-    with mock_file(mock_file_contents) as f:
-        result = logfind.scan_file(f, patterns)
-    assert result
+    assert scan_mock_file(mock_file_contents, terms)
 
 
 def test_scan_file_negative_and():
@@ -30,10 +33,7 @@ term1
 term3
 """
     terms = (b'term1', b'term2')
-    patterns = logfind.compile_patterns(terms)
-    with mock_file(mock_file_contents) as f:
-        result = logfind.scan_file(f, patterns)
-    assert not result
+    assert not scan_mock_file(mock_file_contents, terms)
 
 
 def test_scan_file_positive_or():
@@ -41,10 +41,7 @@ def test_scan_file_positive_or():
 term1
 """
     terms = (b'term1', b'term2')
-    patterns = logfind.compile_patterns(terms)
-    with mock_file(mock_file_contents) as f:
-        result = logfind.scan_file(f, patterns, and_lookup=False)
-    assert result
+    assert scan_mock_file(mock_file_contents, terms, and_lookup=False)
 
 
 def test_scan_file_negative_or():
@@ -52,7 +49,4 @@ def test_scan_file_negative_or():
 term3
 """
     terms = (b'term1', b'term2')
-    patterns = logfind.compile_patterns(terms)
-    with mock_file(mock_file_contents) as f:
-        result = logfind.scan_file(f, patterns, and_lookup=False)
-    assert not result
+    assert not scan_mock_file(mock_file_contents, terms, and_lookup=False)
