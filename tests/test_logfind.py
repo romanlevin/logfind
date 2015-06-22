@@ -12,7 +12,7 @@ def mock_file(contents):
 
 
 def scan_mock_file(contents, terms, and_lookup=True):
-    patterns = logfind.compile_patterns(terms)
+    patterns = logfind.compile_patterns(terms, and_lookup)
     with mock_file(contents) as f:
         return logfind.scan_file(f, patterns, and_lookup)
 

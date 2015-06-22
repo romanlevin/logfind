@@ -22,9 +22,8 @@ def get_important_files(logfind_rc=LOGFIND_RC):
 
 
 def scan_file(file_object, patterns, and_lookup=True):
-    any_or_all = all if and_lookup else any
     with mmap.mmap(file_object.fileno(), 0) as data:
-        return any_or_all(pattern.search(data) for pattern in patterns)
+        return all(pattern.search(data) for pattern in patterns)
 
 
 def scan_file_path(file_path, patterns, and_lookup=True):
@@ -37,8 +36,8 @@ def scan_file_path(file_path, patterns, and_lookup=True):
             raise
 
 
-def compile_patterns(patterns):
-    return tuple(re.compile(pattern) for pattern in patterns)
+def compile_patterns(patterns, and_lookup=True):
+    return tuple(re.compile(p) for p in patterns) if and_lookup else (re.compile(b'|'.join(b'(' + p + b')' for p in patterns)),)
 
 
 def get_args():
@@ -55,7 +54,7 @@ def main():
     patterns = args.patterns
     and_lookup = not args.or_lookup
     paths_to_scan = get_important_files()
-    compiled_patterns = compile_patterns(patterns)
+    compiled_patterns = compile_patterns(patterns, and_lookup=and_lookup)
     hits = [path for path in paths_to_scan if scan_file_path(path, compiled_patterns, and_lookup=and_lookup)]
     for hit in hits:
         print(hit)
